@@ -1,65 +1,102 @@
-import Image from "next/image";
+"use client";
 
-export default function Home() {
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import * as z from "zod";
+
+// 1. Khai báo bộ quy tắc (Schema) bằng Zod
+const registerSchema = z.object({
+  name: z.string().min(1, "Họ và tên không được để trống!"),
+  email: z.string().email("Email không đúng định dạng!"),
+  password: z.string().min(6, "Mật khẩu phải có ít nhất 6 ký tự!"),
+});
+
+// Trích xuất kiểu dữ liệu từ schema
+type RegisterFormData = z.infer<typeof registerSchema>;
+
+export default function RegisterForm() {
+  // 2. Tích hợp React Hook Form
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<RegisterFormData>({
+    resolver: zodResolver(registerSchema),
+  });
+
+  const onSubmit = (data: RegisterFormData) => {
+    alert("Đăng ký thành công!");
+    console.log("Dữ liệu đăng ký:", data);
+  };
+
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
+    <main className="min-h-screen flex items-center justify-center bg-gray-50 p-4">
+      <div className="max-w-md w-full p-8 bg-white rounded-xl shadow-lg border border-gray-100">
+        <div className="mb-8 text-center">
+          <h2 className="text-3xl font-extrabold text-gray-900">Đăng ký tài khoản</h2>
+          <p className="mt-2 text-sm text-gray-600">Khởi đầu hành trình của bạn ngay hôm nay</p>
+        </div>
+        
+        <form className="space-y-6" onSubmit={handleSubmit(onSubmit)}>
+          <div className="space-y-2">
+            <label className="text-sm font-semibold text-gray-700 block ml-1">
+              Họ và tên
+            </label>
+            <input
+              {...register("name")}
+              type="text"
+              className={`w-full px-4 py-3 rounded-lg border ${
+                errors.name ? "border-red-500" : "border-gray-300"
+              } focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all duration-200 placeholder-gray-400`}
+              placeholder="Nhập tên đầy đủ của bạn..."
+            />
+            {errors.name && <p className="text-red-500 text-xs mt-1 ml-1">{errors.name.message}</p>}
+          </div>
+
+          <div className="space-y-2">
+            <label className="text-sm font-semibold text-gray-700 block ml-1">
+              Email
+            </label>
+            <input
+              {...register("email")}
+              type="email"
+              className={`w-full px-4 py-3 rounded-lg border ${
+                errors.email ? "border-red-500" : "border-gray-300"
+              } focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all duration-200 placeholder-gray-400`}
+              placeholder="example@domain.com"
+            />
+            {errors.email && <p className="text-red-500 text-xs mt-1 ml-1">{errors.email.message}</p>}
+          </div>
+
+          <div className="space-y-2">
+            <label className="text-sm font-semibold text-gray-700 block ml-1">
+              Mật khẩu
+            </label>
+            <input
+              {...register("password")}
+              type="password"
+              className={`w-full px-4 py-3 rounded-lg border ${
+                errors.password ? "border-red-500" : "border-gray-300"
+              } focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all duration-200 placeholder-gray-400`}
+              placeholder="••••••••"
+            />
+            {errors.password && <p className="text-red-500 text-xs mt-1 ml-1">{errors.password.message}</p>}
+          </div>
+
+          <button
+            type="submit"
+            className="w-full py-4 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl shadow-md hover:shadow-lg transform active:scale-[0.98] transition-all duration-200 mt-4 uppercase tracking-wider"
+          >
+            Đăng ký
+          </button>
+        </form>
+        
+        <div className="mt-8 text-center border-t pt-6 border-gray-100">
+          <p className="text-sm text-gray-500">
+            Đã có tài khoản? <span className="text-blue-600 cursor-pointer font-medium hover:underline">Đăng nhập ngay</span>
           </p>
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
-    </div>
+      </div>
+    </main>
   );
 }
